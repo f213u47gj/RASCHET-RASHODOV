@@ -1,0 +1,160 @@
+﻿@model RASCHET_HASHODOV.ViewModels.ExpensesViewModel
+
+@{
+    ViewData["Title"] = "Мои расходы";
+}
+
+<h2>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#categoryStatsModal" id="loadCategoryStats" class="text-decoration-none">
+        Мой расходы
+    </a>
+</h2>
+
+<p class="1"><strong>Общая сумма расходов:</strong> @Model.TotalAmount руб.</p>
+<p class="1"><strong>Расходы за текущий месяц:</strong> @Model.CurrentMonthAmount руб.</p>
+
+<div class="mb-4">
+    <a asp-action="Create" class="btn btn-primary rounded-pill px-4 py-2">Добавить расход</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Описание</th>
+            <th>Сумма</th>
+            <th>Категория</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var expense in Model.Expenses)
+        {
+            <tr id="expense-@expense.Id">
+                <td>@expense.Date.ToShortDateString()</td>
+                <td>@expense.Description</td>
+                <td>@expense.Amount руб.</td>
+                <td>@expense.Category?.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@expense.Id" class="btn btn-sm rounded-pill">Редактировать</a>
+                    <button class="btn btn-sm rounded-pill delete-expense" data-id="@expense.Id">Удалить</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Модальное окно для статистики по категориям -->
+<div class="modal fade" id="categoryStatsModal" tabindex="-1" aria-labelledby="categoryStatsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryStatsModalLabel">Статистика по категориям</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Категория</th>
+                            <th>Общая сумма</th>
+                            <th>За текущий месяц</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryStatsBody">
+                        <!-- Данные будут загружены через AJAX -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключение jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS (необходимо для работы модального окна) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Удаление расходов
+        $(".delete-expense").click(function () {
+            if (!confirm("Вы уверены, что хотите удалить этот расход?")) return;
+
+            var expenseId = $(this).data("id");
+
+            $.ajax({
+                url: "/Expense/Delete",
+                type: "POST",
+                data: { id: expenseId },
+                success: function (response) {
+                    if (response.success) {
+                        $("#expense-" + expenseId).fadeOut();
+                    } else {
+                        alert("Ошибка при удалении расхода!");
+                    }
+                },
+                error: function () {
+                    alert("Ошибка запроса к серверу!");
+                }
+            });
+        });
+
+        // Загрузка статистики при открытии модального окна
+        $("#loadCategoryStats").click(function () {
+            $.ajax({
+                url: "/Expense/GetCategoryStats",
+                type: "GET",
+                success: function (data) {
+                    var statsHtml = "";
+                    if (data.length === 0) {
+                        statsHtml = "<tr><td colspan='3'>Нет данных</td></tr>";
+                    } else {
+                        data.forEach(function (category) {
+                            statsHtml += `<tr>
+                                        <td>${category.categoryName}</td>
+                                        <td>${category.totalSpent} руб.</td>
+                                        <td>${category.currentMonthSpent} руб.</td>
+                                    </tr>`;
+                        });
+                    }
+                    $("#categoryStatsBody").html(statsHtml);
+                },
+                error: function () {
+                    alert("Ошибка загрузки статистики!");
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Minimalist styling */
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+    }
+
+        .table th, .table td {
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+    .btn {
+        font-size: 0.9rem;
+    }
+
+    .btn-primary, .btn-warning, .btn-danger {
+        background-color: #007bff;
+        border-radius: 30px; /* Rounded buttons */
+    }
+
+        .btn-primary:hover, .btn-warning:hover, .btn-danger:hover {
+            background-color: #0056b3;
+        }
+
+    .modal-content {
+        border-radius: 12px;
+    }
+</style>

@@ -1,0 +1,27 @@
+﻿@model List<RASCHET_HASHODOV.ViewModels.CategoryStatsViewModel>
+
+@{
+    ViewData["Title"] = "Статистика по категориям";
+}
+
+<h2>Статистика по категориям</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Категория</th>
+            <th>Общая сумма</th>
+            <th>Сумма за текущий месяц</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var categoryStat in Model)
+        {
+            <tr>
+                <td>@categoryStat.CategoryName</td>
+                <td>@categoryStat.TotalSpent руб.</td>
+                <td>@categoryStat.CurrentMonthSpent руб.</td>
+            </tr>
+        }
+    </tbody>
+</table>

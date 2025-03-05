@@ -1,0 +1,50 @@
+﻿@model RASCHET_HASHODOV.ViewModels.ExpenseFormViewModel
+
+@{
+    ViewData["Title"] = "Редактировать расход";
+}
+
+<h2 class="text-center text-primary mb-4 cursor-pointer">Редактировать расход</h2>
+
+<div class="card shadow-sm p-4 rounded">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Описание</label>
+            <input asp-for="Description" class="form-control rounded-3 shadow-sm" placeholder="Введите описание">
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Сумма</label>
+            <input asp-for="Amount" type="number" class="form-control rounded-3 shadow-sm" placeholder="Введите сумму">
+            <span asp-validation-for="Amount" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Категория</label>
+            <select asp-for="CategoryId" class="form-control rounded-3 shadow-sm"
+                    asp-items="@(new SelectList(Model.Categories, "Id", "Name", Model.CategoryId))">
+                <option value="">Выберите категорию</option> <!-- Дефолтный вариант -->
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Дата</label>
+            <input asp-for="Date" type="date" class="form-control rounded-3 shadow-sm">
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div class="text-left">
+            <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 shadow">Сохранить</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>

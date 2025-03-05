@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="hero-section text-center text-white">
+    <h1>Умный контроль расходов на обучение</h1>
+    <p>Планируйте бюджет, управляйте тратами и прогнозируйте будущее!</p>
+
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <!-- Если пользователь не авторизован, показываем кнопки для регистрации и входа -->
+        <a asp-controller="Registration" asp-action="Index" class="btn btn-success">Зарегистрироваться</a>
+        <a asp-controller="Login" asp-action="Index" class="btn btn-light">Войти</a>
+    }
+    else
+    {
+        <!-- Если пользователь авторизован, перенаправляем на страницу расходов -->
+        <a asp-controller="Expense" asp-action="Index" class="btn btn-primary">Перейти к расходам</a>
+    }
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #007bff, #28a745);
+        padding: 100px 20px;
+    }
+</style>

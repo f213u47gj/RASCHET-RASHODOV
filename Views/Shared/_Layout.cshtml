@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5faff;
+        }
+
+        .navbar {
+            background-color: #0056b3;
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+        .profile-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+            .profile-dropdown a {
+                display: block;
+                padding: 10px;
+                text-decoration: none;
+                color: black;
+            }
+
+                .profile-dropdown a:hover {
+                    background: #f0f0f0;
+                }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Expense" asp-action="Index">📊 BudgetApp</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Expense" asp-action="Index">Расходы</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Expense" asp-action="Forecast">Прогнозы</a></li>
+                            <li class="nav-item profile-menu">
+                                <button class="nav-link btn btn-link text-white" onclick="toggleProfileMenu()">@User.Identity.Name ⏷</button>
+                                <div id="profileDropdown" class="profile-dropdown">
+                                    <a asp-controller="Login" asp-action="Logout">Выход</a>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Index">Войти</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-success text-white" asp-controller="Registration" asp-action="Index">Регистрация</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script>
+        function toggleProfileMenu() {
+            var dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+        document.addEventListener("click", function (event) {
+            var isClickInside = document.querySelector(".profile-menu")?.contains(event.target);
+            if (!isClickInside) {
+                document.getElementById("profileDropdown").style.display = "none";
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
