@@ -10,4 +10,5 @@ public class User : IdentityUser
     }
 
     public virtual ICollection<Expense> Expenses { get; set; }
+    public virtual ICollection<Forecast> Forecasts { get; set; } // Добавляем связь с Forecast
 }

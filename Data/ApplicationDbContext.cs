@@ -13,47 +13,39 @@ namespace RASCHET_HASHODOV.Data
 
         public DbSet<ExpenseCategory> Categories { get; set; }
         public DbSet<Expense> Expenses { get; set; }
-        public DbSet<Budget> Budgets { get; set; } // Add DbSet for Budget
-        public DbSet<BudgetRecommendation> BudgetRecommendations { get; set; } // Add DbSet for BudgetRecommendation
-        public DbSet<ExpenseReport> ExpenseReports { get; set; } // Add DbSet for ExpenseReport
+        public DbSet<ExpenseReport> ExpenseReports { get; set; } // DbSet для ExpenseReport
+        public DbSet<Forecast> Forecasts { get; set; } // DbSet для Forecast
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Expense Category relationship
+            // Связь для ExpenseCategory и Expense
             modelBuilder.Entity<ExpenseCategory>()
                 .HasMany(c => c.Expenses)
                 .WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // User and Expense relationship
+            // Связь для User и Expense
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Expenses)
                 .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Budget and User relationship
-            modelBuilder.Entity<Budget>()
-                .HasOne(b => b.User)
-                .WithMany()
-                .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // BudgetRecommendation and User relationship
-            modelBuilder.Entity<BudgetRecommendation>()
-                .HasOne(br => br.User)
-                .WithMany()
-                .HasForeignKey(br => br.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ExpenseReport and User relationship
+            // Связь для User и ExpenseReport
             modelBuilder.Entity<ExpenseReport>()
                 .HasOne(er => er.User)
                 .WithMany()
                 .HasForeignKey(er => er.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Связь для User и Forecast
+            modelBuilder.Entity<Forecast>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

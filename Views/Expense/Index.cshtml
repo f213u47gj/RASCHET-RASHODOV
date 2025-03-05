@@ -5,13 +5,13 @@
 }
 
 <h2>
-    <a href="#" data-bs-toggle="modal" data-bs-target="#categoryStatsModal" id="loadCategoryStats" class="text-decoration-none">
-        Мой расходы
+    <a href="#" data-bs-toggle="modal" data-bs-target="#detailedStatsModal" id="loadDetailedStats" class="text-decoration-none">
+        Мои расходы
     </a>
 </h2>
 
-<p class="1"><strong>Общая сумма расходов:</strong> @Model.TotalAmount руб.</p>
-<p class="1"><strong>Расходы за текущий месяц:</strong> @Model.CurrentMonthAmount руб.</p>
+<p><strong>Общая сумма расходов:</strong> @Model.TotalAmount руб.</p>
+<p><strong>Расходы за текущий месяц:</strong> @Model.CurrentMonthAmount руб.</p>
 
 <div class="mb-4">
     <a asp-action="Create" class="btn btn-primary rounded-pill px-4 py-2">Добавить расход</a>
@@ -44,15 +44,15 @@
     </tbody>
 </table>
 
-<!-- Модальное окно для статистики по категориям -->
-<div class="modal fade" id="categoryStatsModal" tabindex="-1" aria-labelledby="categoryStatsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Модальное окно для подробной статистики -->
+<div class="modal fade" id="detailedStatsModal" tabindex="-1" aria-labelledby="detailedStatsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="categoryStatsModalLabel">Статистика по категориям</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
+                <h5>Расходы по категориям</h5>
                 <table class="table">
                     <thead>
                         <tr>
@@ -62,7 +62,20 @@
                         </tr>
                     </thead>
                     <tbody id="categoryStatsBody">
-                        <!-- Данные будут загружены через AJAX -->
+                        <!-- Данные загружаются через AJAX -->
+                    </tbody>
+                </table>
+
+                <h5 class="mt-4">Расходы по месяцам (последние 6 месяцев)</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Месяц</th>
+                            <th>Сумма расходов</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyStatsBody">
+                        <!-- Данные загружаются через AJAX -->
                     </tbody>
                 </table>
             </div>
@@ -72,7 +85,7 @@
 
 <!-- Подключение jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Bootstrap JS (необходимо для работы модального окна) -->
+<!-- Bootstrap JS (для работы модального окна) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -100,25 +113,38 @@
             });
         });
 
-        // Загрузка статистики при открытии модального окна
-        $("#loadCategoryStats").click(function () {
+        // Загрузка детализированной статистики
+        $("#loadDetailedStats").click(function () {
             $.ajax({
-                url: "/Expense/GetCategoryStats",
+                url: "/Expense/GetDetailedStats",
                 type: "GET",
                 success: function (data) {
-                    var statsHtml = "";
-                    if (data.length === 0) {
-                        statsHtml = "<tr><td colspan='3'>Нет данных</td></tr>";
+                    var categoryStatsHtml = "";
+                    if (data.categories.length === 0) {
+                        categoryStatsHtml = "<tr><td colspan='3'>Нет данных</td></tr>";
                     } else {
-                        data.forEach(function (category) {
-                            statsHtml += `<tr>
-                                        <td>${category.categoryName}</td>
-                                        <td>${category.totalSpent} руб.</td>
-                                        <td>${category.currentMonthSpent} руб.</td>
-                                    </tr>`;
+                        data.categories.forEach(function (category) {
+                            categoryStatsHtml += `<tr>
+                                            <td>${category.categoryName}</td>
+                                            <td>${category.totalSpent} руб.</td>
+                                            <td>${category.currentMonthSpent} руб.</td>
+                                        </tr>`;
                         });
                     }
-                    $("#categoryStatsBody").html(statsHtml);
+                    $("#categoryStatsBody").html(categoryStatsHtml);
+
+                    var monthlyStatsHtml = "";
+                    if (data.monthly.length === 0) {
+                        monthlyStatsHtml = "<tr><td colspan='2'>Нет данных</td></tr>";
+                    } else {
+                        data.monthly.forEach(function (month) {
+                            monthlyStatsHtml += `<tr>
+                                            <td>${month.monthName}</td>
+                                            <td>${month.totalSpent} руб.</td>
+                                        </tr>`;
+                        });
+                    }
+                    $("#monthlyStatsBody").html(monthlyStatsHtml);
                 },
                 error: function () {
                     alert("Ошибка загрузки статистики!");
@@ -129,7 +155,7 @@
 </script>
 
 <style>
-    /* Minimalist styling */
+    /* Стилизация */
     .table {
         width: 100%;
         margin-top: 20px;
@@ -147,7 +173,7 @@
 
     .btn-primary, .btn-warning, .btn-danger {
         background-color: #007bff;
-        border-radius: 30px; /* Rounded buttons */
+        border-radius: 30px;
     }
 
         .btn-primary:hover, .btn-warning:hover, .btn-danger:hover {

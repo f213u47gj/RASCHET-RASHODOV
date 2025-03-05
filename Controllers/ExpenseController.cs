@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RASCHET_HASHODOV.Data;
+using RASCHET_HASHODOV.IRepositories;
 using RASCHET_HASHODOV.Models;
 using RASCHET_HASHODOV.ViewModels;
 using System.Linq;
@@ -11,11 +13,13 @@ using System.Security.Claims;
 [Authorize]
 public class ExpenseController : Controller
 {
+    private readonly UserManager<User> _userManager;
     private readonly ApplicationDbContext _context;
 
-    public ExpenseController(ApplicationDbContext context)
+    public ExpenseController(ApplicationDbContext context, UserManager<User> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public IActionResult Create()
@@ -170,5 +174,45 @@ public class ExpenseController : Controller
         _context.SaveChanges();
 
         return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDetailedStats()
+    {
+        var userId = _userManager.GetUserId(User); // Получаем ID текущего пользователя
+
+        if (userId == null)
+        {
+            return Unauthorized(); // Если пользователь не авторизован
+        }
+
+        // Группируем расходы по категориям
+        var categoryStats = await _context.Expenses
+            .Where(e => e.UserId == userId)
+            .GroupBy(e => e.Category.Name)
+            .Select(g => new
+            {
+                CategoryName = g.Key,
+                TotalSpent = g.Sum(e => e.Amount),
+                CurrentMonthSpent = g.Where(e => e.Date.Month == DateTime.Now.Month && e.Date.Year == DateTime.Now.Year)
+                                     .Sum(e => e.Amount)
+            })
+            .ToListAsync();
+
+        // Получаем расходы за последние 6 месяцев
+        var monthlyStats = await _context.Expenses
+            .Where(e => e.UserId == userId)
+            .GroupBy(e => new { e.Date.Year, e.Date.Month })
+            .OrderByDescending(g => g.Key.Year).ThenByDescending(g => g.Key.Month)
+            .Take(6)
+            .Select(g => new
+            {
+                MonthName = new DateTime(g.Key.Year, g.Key.Month, 1)
+                            .ToString("MMMM yyyy", new System.Globalization.CultureInfo("ru-RU")),
+                TotalSpent = g.Sum(e => e.Amount)
+            })
+            .ToListAsync();
+
+        return Json(new { categories = categoryStats, monthly = monthlyStats });
     }
 }
