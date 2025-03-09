@@ -1,0 +1,9 @@
+﻿@model RASCHET_HASHODOV.Models.ExpenseReport
+
+<h2>Отчет о расходах за @Model.Period</h2>
+
+<p><strong>Сумма расходов:</strong> @Model.TotalAmount ₽</p>
+<p><strong>Изменение расходов:</strong> @ViewBag.PercentageChange %</p>
+<p><strong>Вывод:</strong> @ViewBag.Message</p>
+
+<a href="@Url.Action("Index", "ExpenseReport")" class="btn btn-primary">Назад</a>

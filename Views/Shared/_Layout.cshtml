@@ -59,7 +59,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Expense" asp-action="Index">Расходы</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Expense" asp-action="Forecast">Прогнозы</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Forecast" asp-action="Index">Прогнозы</a></li>
                             <li class="nav-item profile-menu">
                                 <button class="nav-link btn btn-link text-white" onclick="toggleProfileMenu()">@User.Identity.Name ⏷</button>
                                 <div id="profileDropdown" class="profile-dropdown">
