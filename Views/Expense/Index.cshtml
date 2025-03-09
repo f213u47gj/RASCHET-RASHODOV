@@ -15,6 +15,7 @@
 
 <div class="mb-4">
     <a asp-action="Create" class="btn btn-primary rounded-pill px-4 py-2">Добавить расход</a>
+    <a asp-controller="ExpenseReport" asp-action="Index" class="btn btn-success rounded-pill px-4 py-2 ms-2">Посмотреть отчет</a> <!-- Новая кнопка -->
 </div>
 
 <table class="table table-bordered table-striped">
@@ -125,10 +126,10 @@
                     } else {
                         data.categories.forEach(function (category) {
                             categoryStatsHtml += `<tr>
-                                            <td>${category.categoryName}</td>
-                                            <td>${category.totalSpent} руб.</td>
-                                            <td>${category.currentMonthSpent} руб.</td>
-                                        </tr>`;
+                                                <td>${category.categoryName}</td>
+                                                <td>${category.totalSpent} руб.</td>
+                                                <td>${category.currentMonthSpent} руб.</td>
+                                            </tr>`;
                         });
                     }
                     $("#categoryStatsBody").html(categoryStatsHtml);
@@ -139,9 +140,9 @@
                     } else {
                         data.monthly.forEach(function (month) {
                             monthlyStatsHtml += `<tr>
-                                            <td>${month.monthName}</td>
-                                            <td>${month.totalSpent} руб.</td>
-                                        </tr>`;
+                                                <td>${month.monthName}</td>
+                                                <td>${month.totalSpent} руб.</td>
+                                            </tr>`;
                         });
                     }
                     $("#monthlyStatsBody").html(monthlyStatsHtml);
@@ -178,6 +179,14 @@
 
         .btn-primary:hover, .btn-warning:hover, .btn-danger:hover {
             background-color: #0056b3;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
         }
 
     .modal-content {
